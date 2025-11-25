@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  loki:
+    image: grafana/loki:${LOKI_VERSION}
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "${LOKI_PORT}:3100"
+    volumes:
+      - ./:/mnt/config
+    command: -config.file=/mnt/config/loki-config.yaml
+    networks:
+      - ${NETWORK_NAME}
+
+  promtail:
+    image: grafana/promtail:3.4.1
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - ./:/mnt/config
+      - /var/log:/var/log
+    command: -config.file=/mnt/config/promtail-config.yaml
+    depends_on:
+      - loki
+    networks:
+      - ${NETWORK_NAME}
+
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   restart: always
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #   networks:
+  #     - ${NETWORK_NAME}
+
+  # lnode_exporter:
+  #   image: prom/node-exporter:latest
+  #   container_name: node_exporter
+  #   restart: always
+  #   ports:
+  #     - "9100:9100"
+  #   depends_on:
+  #     - prometheus
+  #   networks:
+  #     - ${NETWORK_NAME}
+
+
+networks:
+  loki-network:
+    name: ${NETWORK_NAME}
+    driver: bridge
