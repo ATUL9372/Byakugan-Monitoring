@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+
+  promtail:
+    image: grafana/promtail:3.4.1
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail-config.yaml:/mnt/config/promtail-config.yaml
+      - /var/log:/var/log
+    command: -config.file=/mnt/config/promtail-config.yaml
+    networks:
+      - promtail-byakugan-network
+
+
+networks:
+  promtail-byakugan-network:
+    name: promtail-byakugan-network
+    driver: bridge
